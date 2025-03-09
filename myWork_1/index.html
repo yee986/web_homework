@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人信息卡片</title>
+    <style>
+        /* 全局样式 */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            transition: background-color 0.3s, color 0.3s;
+            /* 背景和文字颜色过渡效果 */
+        }
+
+        /* 深色主题样式 */
+        body.dark-theme {
+            background-color: #333;
+            /* 深色背景 */
+            color: #fff;
+            /* 深色主题文字颜色 */
+        }
+
+        /* 卡片容器 */
+        .card-container {
+            text-align: center;
+            opacity: 0;
+            /* 初始透明度为0，用于淡入动画 */
+            animation: fadeIn 0.5s forwards;
+            /* 淡入动画 */
+        }
+
+        /* 淡入动画 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+                /* 从上方20px处开始 */
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+                /* 移动到原始位置 */
+            }
+        }
+
+        /* 卡片样式 */
+        .card {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            transition: background-color 0.3s, color 0.3s;
+            /* 背景和文字颜色过渡效果 */
+        }
+
+        /* 深色主题下的卡片样式 */
+        body.dark-theme .card {
+            background-color: #444;
+            /* 深色卡片背景 */
+            color: #fff;
+            /* 深色卡片文字颜色 */
+        }
+
+        /* 卡片标题样式 */
+        .card h1 {
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: #007bff;
+            /* 默认标题颜色 */
+            transition: color 0.3s;
+            /* 标题颜色过渡效果 */
+        }
+
+        /* 深色主题下的卡片标题样式 */
+        body.dark-theme .card h1 {
+            color: #fff;
+            /* 深色主题标题颜色 */
+        }
+
+        /* 头像容器 */
+        .avatar-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        /* 头像样式 */
+        #avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+            /* 头像缩放动画 */
+            border: 2px solid #e5e3e3;
+        }
+
+        /* 头像悬停效果 */
+        #avatar:hover {
+            transform: scale(1.1);
+            /* 悬停时放大 */
+        }
+
+        /* 头像上传输入框 */
+        #avatar-upload {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* 信息区域 */
+        .info {
+            text-align: left;
+        }
+
+        /* 标签样式 */
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        /* 输入框和文本区域样式 */
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+            /* 过渡效果 */
+        }
+
+        /* 深色主题下的输入框和文本区域样式 */
+        body.dark-theme input[type="text"],
+        body.dark-theme textarea {
+            background-color: #555;
+            /* 深色输入框背景 */
+            color: #fff;
+            /* 深色输入框文字颜色 */
+            border-color: #777;
+            /* 深色输入框边框颜色 */
+        }
+
+        /* 文本区域样式 */
+        textarea {
+            resize: vertical;
+            height: 100px;
+        }
+
+        /* 按钮样式 */
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            /* 背景和缩放过渡效果 */
+        }
+
+        /* 按钮悬停效果 */
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* 按钮点击效果 */
+        button:active {
+            transform: scale(0.95);
+            /* 点击时缩小 */
+        }
+
+        /* 主题切换按钮样式 */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            /* 背景颜色过渡效果 */
+        }
+
+        /* 主题切换按钮悬停效果 */
+        .theme-toggle:hover {
+            background-color: #0056b3;
+        }
+
+        /* 调色盘样式 */
+        .color-picker {
+            margin-top: 20px;
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .color-picker label {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .color-picker input[type="color"] {
+            width: 100%;
+            margin-top: 5px;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 卡片结构 -->
+    <div class="card-container">
+        <h1 id="card-title">个人信息卡片</h1>
+        <div class="card" id="card">
+            <!-- 头像区域 -->
+            <div class="avatar-container">
+                <img id="avatar" src="累死力.jpg" alt="个人头像">
+                <input type="file" id="avatar-upload" accept="image/*">
+            </div>
+            <!-- 信息区域 -->
+            <div class="info">
+                <label for="name">姓名:</label>
+                <input type="text" id="name" placeholder="请输入姓名">
+                <label for="bio">个人简介:</label>
+                <textarea id="bio" placeholder="请输入个人简介"></textarea>
+            </div>
+            <!-- 保存按钮 -->
+            <button id="save-btn">保存</button>
+        </div>
+    </div>
+
+    <!-- 主题切换按钮 -->
+    <button class="theme-toggle" id="theme-toggle">切换主题</button>
+
+    <!-- 调色盘 -->
+    <div class="color-picker">
+        <label for="theme-color">选择主题颜色:</label>
+        <input type="color" id="theme-color" value="#f4f4f4">
+    </div>
+
+    <script>
+        // JavaScript 功能
+        document.addEventListener('DOMContentLoaded', function () {
+            const avatar = document.getElementById('avatar');
+            const avatarUpload = document.getElementById('avatar-upload');
+            const nameInput = document.getElementById('name');
+            const bioInput = document.getElementById('bio');
+            const saveBtn = document.getElementById('save-btn');
+            const themeToggle = document.getElementById('theme-toggle');
+            const themeColorPicker = document.getElementById('theme-color');
+            const body = document.body;
+            const card = document.getElementById('card');
+            const cardTitle = document.getElementById('card-title');
+
+            // 默认主题颜色
+            const defaultThemeColor = '#f4f4f4';
+            const defaultCardBackgroundColor = '#fff';
+            const defaultTextColor = '#333';
+            const defaultTitleColor = '#007bff';
+
+            // 头像上传功能
+            avatarUpload.addEventListener('change', function (event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        avatar.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // 保存功能
+            saveBtn.addEventListener('click', function () {
+                const name = nameInput.value.trim();
+                const bio = bioInput.value.trim();
+
+                // 信息校验
+                if (!name) {
+                    alert('姓名不能为空！');
+                    return;
+                }
+                if (!bio) {
+                    alert('个人简介不能为空！');
+                    return;
+                }
+
+                // 更新卡片上的信息
+                nameInput.value = name;
+                bioInput.value = bio;
+
+                alert('信息已保存！');
+            });
+
+            // 主题颜色切换功能
+            themeColorPicker.addEventListener('input', function () {
+                const selectedColor = themeColorPicker.value;
+                applyTheme(selectedColor);
+            });
+
+            // 切换主题功能
+            // themeToggle.addEventListener('click', function () {
+            //     const currentThemeColor = body.style.backgroundColor || defaultThemeColor;
+            //     if (currentThemeColor === defaultThemeColor) {
+            //         // 如果当前是默认主题，切换到用户选择的颜色
+            //         const selectedColor = themeColorPicker.value;
+            //         applyTheme(selectedColor);
+            //     } else {
+            //         // 如果当前是自定义主题，切换回默认主题
+            //         resetTheme();
+            //     }
+            // });
+             // 切换主题功能
+            themeToggle.addEventListener('click', function () {
+                body.classList.toggle('dark-theme');
+                const isDarkTheme = body.classList.contains('dark-theme');
+                themeToggle.textContent = isDarkTheme ? '浅色主题' : '深色主题';
+            });
+
+            // 应用主题
+            function applyTheme(color) {
+                body.style.backgroundColor = color;
+
+                // 根据主题颜色动态设置卡片背景颜色
+                const cardBackgroundColor = adjustBrightness(color, 20); // 比页面背景亮20%
+                card.style.backgroundColor = cardBackgroundColor;
+
+                // 根据卡片背景颜色动态设置文字颜色
+                const isCardDark = isDarkColor(cardBackgroundColor);
+                card.style.color = isCardDark ? '#fff' : '#333'; // 卡片文字颜色与背景对比
+                cardTitle.style.color = isCardDark ? '#fff' : '#007bff'; // 标题颜色与背景对比
+            }
+
+            // 重置为默认主题
+            function resetTheme() {
+                body.style.backgroundColor = defaultThemeColor;
+                card.style.backgroundColor = defaultCardBackgroundColor;
+                card.style.color = defaultTextColor;
+                cardTitle.style.color = defaultTitleColor;
+                themeColorPicker.value = defaultThemeColor; // 重置调色盘颜色
+            }
+
+            // 调整颜色亮度
+            function adjustBrightness(color, percent) {
+                const hex = color.replace('#', '');
+                const r = parseInt(hex.substr(0, 2), 16);
+                const g = parseInt(hex.substr(2, 2), 16);
+                const b = parseInt(hex.substr(4, 2), 16);
+
+                const adjust = (value) => {
+                    const newValue = Math.min(255, value + (value * percent) / 100);
+                    return Math.round(newValue);
+                };
+
+                const newR = adjust(r);
+                const newG = adjust(g);
+                const newB = adjust(b);
+
+                return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`;
+            }
+
+            // 判断颜色是否为深色
+            function isDarkColor(color) {
+                const hex = color.replace('#', '');
+                const r = parseInt(hex.substr(0, 2), 16);
+                const g = parseInt(hex.substr(2, 2), 16);
+                const b = parseInt(hex.substr(4, 2), 16);
+                const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+                return brightness < 128; // 小于128为深色
+            }
+        });
+    </script>
+</body>
+
+</html>
